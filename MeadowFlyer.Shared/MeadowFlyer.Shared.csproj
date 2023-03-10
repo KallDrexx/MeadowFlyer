@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Meadow.Foundation" Version="0.94.2" />
+      <PackageReference Include="Meadow.Foundation.Graphics.MicroGraphics" Version="0.94.2" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Content Include="maps/**" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+</Project>
