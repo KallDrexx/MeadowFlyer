@@ -13,6 +13,38 @@ public class MapData
         ColorMap = LoadColorBitmap(Path.Combine(fileRoot, colorMapName));
         HeightMap = LoadGrayScale(Path.Combine(fileRoot, heightMapName));
     }
+
+    public Point NormalizeCoordinates(Point point)
+    {
+        var x = point.X;
+        var y = point.Y;
+        
+        // Normalize x and y to always be within bounds, wrapping if outside
+        while (x < 0) x += ColorMap.Width;
+        while (x >= ColorMap.Width) x -= ColorMap.Width;
+        while (y < 0) y += ColorMap.Height;
+        while (y >= ColorMap.Height) y -= ColorMap.Height;
+
+        return new Point(x, y);
+    }
+
+    public (byte, byte) GetColorAt(Point point)
+    {
+        const int bytesPerPixel = 2;
+        
+        // Pre-normalized point expected
+        var index = point.Y * ColorMap.Width * bytesPerPixel + point.X * bytesPerPixel;
+        return (ColorMap.Buffer[index], ColorMap.Buffer[index + 1]);
+    }
+
+    public byte GetHeightAt(Point point)
+    {
+        const int bytesPerPixel = 1;
+        
+        // Pre-normalized point expected
+        var index = point.Y * HeightMap.Width * bytesPerPixel + point.X * bytesPerPixel;
+        return HeightMap.Buffer[index];
+    }
     
     private static BufferRgb565 LoadColorBitmap(string filePath)
     {

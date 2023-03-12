@@ -15,7 +15,7 @@ public class App
     public App(IGraphicsDisplay graphicsDisplay, string fileRoot)
     {
         _camera = new Camera();
-        _renderer = new ColumnBasedRenderer(graphicsDisplay);
+        _renderer = new SMackeRenderer(graphicsDisplay);
         _mapPath = Path.Combine(fileRoot, "maps");
     }
     
