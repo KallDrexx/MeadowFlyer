@@ -58,7 +58,7 @@ public class SMackeRenderer : IRenderer
             var point = new Vector2(pointLeft.X, pointLeft.Y);
             for (var column = 0; column < ScreenWidth; column++)
             {
-                var samplePoint = map.NormalizeCoordinates(new Point((int)point.X, (int)point.Y));
+                var samplePoint = map.NormalizeCoordinates(new Point((int)Math.Round(point.X), (int)Math.Round(point.Y)));
                 var heightValue = map.GetHeightAt(samplePoint);
                 var colorValue = map.GetColorAt(samplePoint);
                 var heightOnScreen = (height - heightValue) / z * scaleHeight + horizon;

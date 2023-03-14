@@ -43,12 +43,12 @@ public class App
 
         if (InputManager.GetButtonState(Constants.Left) == ButtonState.Down)
         {
-            _camera.DirectionAngleDegrees += (float)(anglePerSecond * _timeSinceLastFrame.TotalSeconds);
+            _camera.DirectionAngleDegrees -= (float)(anglePerSecond * _timeSinceLastFrame.TotalSeconds);
         }
 
         if (InputManager.GetButtonState(Constants.Right) == ButtonState.Down)
         {
-            _camera.DirectionAngleDegrees -= (float)(anglePerSecond * _timeSinceLastFrame.TotalSeconds);
+            _camera.DirectionAngleDegrees += (float)(anglePerSecond * _timeSinceLastFrame.TotalSeconds);
         }
     }
 }
