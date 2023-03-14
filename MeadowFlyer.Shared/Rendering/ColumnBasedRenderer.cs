@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Meadow.Foundation;
 using Meadow.Foundation.Graphics;
 
 namespace MeadowFlyer.Shared.Rendering;
@@ -9,53 +10,63 @@ namespace MeadowFlyer.Shared.Rendering;
 public class ColumnBasedRenderer : IRenderer
 {
     private readonly IGraphicsDisplay _display;
+    private readonly MicroGraphics _microGraphics;
     public int ScreenWidth => _display.Width;
     public int ScreenHeight => _display.Height;
 
     public ColumnBasedRenderer(IGraphicsDisplay display)
     {
         _display = display;
+        _microGraphics = new MicroGraphics(display);
     }
 
     public void Render(Camera camera, MapData map)
     {
         _display.Clear();
-        
-        var (left, right) = CalculateFarPlane(camera);
-        // should we have a near plane?
 
-        var farPlaneColumnDelta = new Vector2(
-            (right.X - left.X) / (float)ScreenWidth,
-            (right.Y - left.Y) / (float)ScreenWidth);
-        
-        for (var column = 0; column < ScreenWidth; column++)
-        {
-            RenderColumn(left, column, farPlaneColumnDelta, map, camera);
-        }
-        
-        _display.Show();
-    }
-    
-    private (Point, Point) CalculateFarPlane(Camera camera)
-    {
+        // Precalculate some trig values
         var directionInRadians = camera.DirectionAngleDegrees * (Math.PI / 180);
         var cosDirection = Math.Cos(directionInRadians);
         var sinDirection = Math.Sin(directionInRadians);
-        
         var halfFovRadians = camera.FovDegrees / 2f * (Math.PI / 180);
-        var opposite = (int)(Math.Tan(halfFovRadians) * camera.VisibleDistance);
+        var tanHalfFov = Math.Tan(halfFovRadians);
 
+        var (farLeft, farRight) = CalculateLine(camera, 
+            camera.VisibleDistance, 
+            cosDirection, 
+            sinDirection, 
+            tanHalfFov);
+
+        var (nearLeft, nearRight) = CalculateLine(camera,
+            25,
+            cosDirection,
+            sinDirection,
+            tanHalfFov);
+        
+        _microGraphics.DrawLine(farLeft.X, farLeft.Y, farRight.X, farRight.Y, Color.White);
+        _microGraphics.DrawLine(nearLeft.X, nearLeft.Y, nearRight.X, nearRight.Y, Color.White);
+        _microGraphics.DrawLine(farLeft.X, farLeft.Y, camera.Position.X, camera.Position.Y, Color.White);
+        _microGraphics.DrawLine(farRight.X, farRight.Y, camera.Position.X, camera.Position.Y, Color.White);
+
+        _display.Show();
+    }
+
+    private static (Point, Point) CalculateLine(Camera camera,
+        int distance,
+        double cosDirection,
+        double sinDirection,
+        double tanHalfFov)
+    {
+        var opposite = tanHalfFov * distance;
         var leftX = -opposite;
-        var leftY = -camera.VisibleDistance;
-
+        var leftY = -distance;
         var rotatedLeftX = (int)Math.Round(leftX * cosDirection - leftY * sinDirection);
-        var rotatedLeftY = (int)Math.Round(leftY * cosDirection + leftX * sinDirection);
+        var rotatedLeftY = (int)Math.Round(leftX * sinDirection + leftY * cosDirection);
 
         var rightX = opposite;
-        var rightY = -camera.VisibleDistance;
-
+        var rightY = -distance;
         var rotatedRightX = (int)Math.Round(rightX * cosDirection - rightY * sinDirection);
-        var rotatedRightY = (int)Math.Round(rightY * cosDirection + rightX * sinDirection);
+        var rotatedRightY = (int)Math.Round(rightX * sinDirection + rightY * cosDirection);
 
         rotatedLeftX += camera.Position.X;
         rotatedLeftY += camera.Position.Y;
